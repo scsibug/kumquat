@@ -34,13 +34,14 @@ socket.on('message', function(obj){
 
 <div id="currentLocation"></div>
 
-<form>
-<div id="currentGeoHash"></div>
-<label for="geohash">GeoHash</label><br />
-<input id="geohash" type="text" name="geohash" /> <br />
-<label for="message">Message</label><br />
-<input id="message" type="text" name="message" />
-<input type="submit" />
+<form action="/messages" method="post">
+  <label for="username">Nickname</label><br />
+  <input id="username" type="text" name="username" /> <br />
+  <label for="geohash">GeoHash</label><br />
+  <input id="geohash" type="text" name="geohash" /> <br />
+  <label for="message">Message</label><br />
+  <input id="message" type="text" name="message" /> <br />
+  <input type="submit" />
 </form>
 
 </div>

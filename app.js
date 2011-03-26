@@ -24,6 +24,16 @@ app.get('/', function(req, res) {
     });
 });
 
+app.post('/messages', function(req, res) {
+    var gh = req.body.geohash;
+    var msg = req.body.message;
+    console.log("New message @ "+gh+", "+msg);
+    res.render('index', {
+        locals: { title: "Location-Based Chat" }
+    });
+});
+
+
 // Static files.  Keep this last so it doesn't interfere with dynamic routes.
 app.use(express.staticProvider(__dirname + '/static'));
 
