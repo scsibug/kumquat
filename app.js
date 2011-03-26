@@ -28,10 +28,30 @@ app.post('/messages', function(req, res) {
     var user = req.body.username;
     var gh = req.body.geohash;
     var msg = req.body.message;
+    var ts = +new Date();
+    // Nothing to be sent to the client
+    res.send();
     console.log("New message @ "+gh+", "+msg);
-    res.render('index', {
-        locals: { title: "Location-Based Chat" }
+    // First, get a unique identifier for the message
+    client.incr("message.incr", function(err,key) {
+        if (!err) {
+            // Store message itself
+            client.set("msg."+key, {user: user, geohash: gh, message: msg, timestamp: ts});
+            // Store message in global set by timestamp
+            client.zadd("msgs.global", ts, key);
+            // store the message in geohash sorted sets named with
+            // the 4,5,6,7 prefixes, with the timestamp as the score.
+            // Store in prefix-4
+            client.zadd("msgs.gh."+gh.substr(0,4), ts, key);
+            // Store in prefix-5
+            client.zadd("msgs.gh."+gh.substr(0,5), ts, key);
+            // Store in prefix-6
+            client.zadd("msgs.gh."+gh.substr(0,6), ts, key);
+            // Store in prefix-7
+            client.zadd("msgs.gh."+gh.substr(0,7), ts, key);
+        }
     });
+
 });
 
 
