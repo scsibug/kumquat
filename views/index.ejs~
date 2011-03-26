@@ -36,8 +36,10 @@ socket.on('message', function(obj){
 
 <form>
 <div id="currentGeoHash"></div>
+<label for="geohash">GeoHash</label><br />
 <input id="geohash" type="text" name="geohash" /> <br />
-<input type="text" name="message" />
+<label for="message">Message</label><br />
+<input id="message" type="text" name="message" />
 <input type="submit" />
 </form>
 

@@ -10,7 +10,8 @@ $(document).ready(function() {
   function successCallback(position) {
     // By using the 'maximumAge' option above, the position
     // object is guaranteed to be at most 10 minutes old.
-    $("#currentLocation").text("found location: ("+position.coords.latitude+","+position.coords.longitude+")");
+    //$("#currentLocation").text("found location: ("+position.coords.latitude+","+position.coords.longitude+")");
+    $("#currentLocation").text("");
     // Convert to GeoHash
     $("#geohash").val(encodeGeoHash(position.coords.latitude,position.coords.longitude));
   }
@@ -32,7 +33,6 @@ socket.on('message', function(obj){
 </script>
 
 <div id="currentLocation"></div>
-
 
 <form>
 <div id="currentGeoHash"></div>
