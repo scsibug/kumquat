@@ -1,5 +1,21 @@
 <div class="container">
 <script>
+
+function message(obj){
+   parsed_obj = JSON.parse(obj);
+   $("#latestmsg").text(parsed_obj.user + " said: " + parsed_obj.message);
+}
+
+var socket = new io.Socket(null, {port: 8134, rememberTransport: false});
+socket.connect();
+socket.on('message', function(obj){
+    message(obj);
+});
+
+function subscribeToGeoHash(geohash) {
+  socket.send(JSON.stringify({action: "subscribe", geohash: geohash.substring(0,4)}));
+}
+
 $(document).ready(function() {
   $("#currentLocation").text("Trying to determine location...");
   // Request a position, no more than 10 minutes old
@@ -13,7 +29,10 @@ $(document).ready(function() {
     //$("#currentLocation").text("found location: ("+position.coords.latitude+","+position.coords.longitude+")");
     $("#currentLocation").text("");
     // Convert to GeoHash
-    $("#geohash").val(encodeGeoHash(position.coords.latitude,position.coords.longitude));
+    var gh = encodeGeoHash(position.coords.latitude,position.coords.longitude);
+    $("#geohash").val(gh);
+    // Subscribe to this area
+    subscribeToGeoHash(gh);
   }
 
   function errorCallback(error) {
@@ -30,15 +49,6 @@ $(document).ready(function() {
            geohash: $('#geohash').val()});
   });
 });
-
-function message(obj){
-}
-
-var socket = new io.Socket(null, {port: 8134, rememberTransport: false});
-socket.connect();
-socket.on('message', function(obj){
-    message(obj);
-  });
 </script>
 
 <div id="currentLocation"></div>
@@ -52,5 +62,8 @@ socket.on('message', function(obj){
   <input id="message" type="text" name="message" /> <br />
   <input type="submit" />
 </form>
-
+<br />
 </div>
+
+<div id="latestmsg">Latest message displayed here...</div>
+

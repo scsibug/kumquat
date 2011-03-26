@@ -1,5 +1,20 @@
 <div class="container">
 <script>
+
+function message(obj){
+   $("#latestmsg").text(obj.user + " said: " + obj.message + JSON.stringify(obj));
+}
+
+var socket = new io.Socket(null, {port: 8134, rememberTransport: false});
+socket.connect();
+socket.on('message', function(obj){
+    message(obj);
+});
+
+function subscribeToGeoHash(geohash) {
+  socket.send(JSON.stringify({action: "subscribe", geohash: geohash.substring(0,4)}));
+}
+
 $(document).ready(function() {
   $("#currentLocation").text("Trying to determine location...");
   // Request a position, no more than 10 minutes old
@@ -13,7 +28,10 @@ $(document).ready(function() {
     //$("#currentLocation").text("found location: ("+position.coords.latitude+","+position.coords.longitude+")");
     $("#currentLocation").text("");
     // Convert to GeoHash
-    $("#geohash").val(encodeGeoHash(position.coords.latitude,position.coords.longitude));
+    var gh = encodeGeoHash(position.coords.latitude,position.coords.longitude);
+    $("#geohash").val(gh);
+    // Subscribe to this area
+    subscribeToGeoHash(gh);
   }
 
   function errorCallback(error) {
@@ -22,25 +40,14 @@ $(document).ready(function() {
   }
 
   $("#messageForm").submit(function(event) {
-      event.preventDefault();
-      var form = $(this);
-      var url = form.attr('action');
-      //var username = form.find('input[name="username"]');
-      //      var message = $form.find('input[name="message"]');
-      //      var geohash = $form.find('input[name="geohash"]');
-      $.post(url, {username: $('#username').val(), message: $('#message').val(), geohash: $('#geohash').val()});
-      //      $.post( url, {username : username, message : message, geohash : geohash});
+    event.preventDefault();
+    var form = $(this);
+    var url = form.attr('action');
+    $.post(url, {username: $('#username').val(),
+           message: $('#message').val(),
+           geohash: $('#geohash').val()});
   });
 });
-
-function message(obj){
-}
-
-var socket = new io.Socket(null, {port: 8134, rememberTransport: false});
-socket.connect();
-socket.on('message', function(obj){
-    message(obj);
-  });
 </script>
 
 <div id="currentLocation"></div>
@@ -54,5 +61,8 @@ socket.on('message', function(obj){
   <input id="message" type="text" name="message" /> <br />
   <input type="submit" />
 </form>
-
+<br />
 </div>
+
+<div id="latestmsg">Latest message displayed here...</div>
+

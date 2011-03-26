@@ -12,6 +12,13 @@ var session_db = 1;
 
 var lbc_redis_port = process.env['lbc_redis_port'];
 
+exports.createPubClient = function(select_db) {
+    pubclient = redis.createClient(process.env['lbc_redis_port']);
+    if (select_db) {db = select_db;}
+    pubclient.select(db,function(){});
+    return pubclient;
+}
+
 exports.initClient = function(select_db) {
     client = redis.createClient(process.env['lbc_redis_port']);
     //redis.debug_mode = true;

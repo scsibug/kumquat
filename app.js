@@ -6,7 +6,7 @@ var client = rclient.initClient();
 var RedisStore = require('./connect_redis');
 var app = express.createServer();
 var io = require('socket.io');
-
+var chat = require('./chat');
 app.configure(function() {
     app.use(express.bodyDecoder());
     app.use(express.cookieDecoder());
@@ -35,20 +35,27 @@ app.post('/messages', function(req, res) {
     // First, get a unique identifier for the message
     client.incr("message.incr", function(err,key) {
         if (!err) {
+            // Store messages, and publish to channels
             // Store message itself
-            client.set("msg."+key, JSON.stringify({user: user, geohash: gh, message: msg, timestamp: ts}));
+            msgobj = JSON.stringify({user: user, geohash: gh, message: msg, timestamp: ts});
+            client.set("msg."+key, msgobj);
             // Store message in global set by timestamp
             client.zadd("msgs.global", ts, key);
+            client.publish("chan.msgs.global", msgobj);
             // store the message in geohash sorted sets named with
             // the 4,5,6,7 prefixes, with the timestamp as the score.
             // Store in prefix-4
             client.zadd("msgs.gh."+gh.substr(0,4), ts, key);
+            client.publish("chan.msgs.gh."+gh.substr(0,4), msgobj);
             // Store in prefix-5
             client.zadd("msgs.gh."+gh.substr(0,5), ts, key);
+            client.publish("chan.msgs.gh."+gh.substr(0,5), msgobj);
             // Store in prefix-6
             client.zadd("msgs.gh."+gh.substr(0,6), ts, key);
+            client.publish("chan.msgs.gh."+gh.substr(0,6), msgobj);
             // Store in prefix-7
             client.zadd("msgs.gh."+gh.substr(0,7), ts, key);
+            client.publish("chan.msgs.gh."+gh.substr(0,7), msgobj);
         }
     });
 });
@@ -145,9 +152,25 @@ app.listen(8134);
 // Broadcast recent events
 var socket = io.listen(app);
 
-//actions.set_listener(function(msg) {
-//    socket.broadcast(msg);
-//});
-// on connection, don't do anything...
-//socket.on('connection', function(client){
-//});
+socket.on('connection', function(client){ 
+    // create redis listener for this client
+    var pubclient = rclient.createPubClient();
+
+    // Send anything sent to subscribed channels back to the client
+    pubclient.on("message", function(channel, message) {
+        client.send(message);
+    });
+
+    client.on('message', function(message){
+        console.log("Message received: "+message);
+        var request = JSON.parse(message);
+        if (request.action == 'subscribe') {
+            pubclient.subscribe("chan.msgs.gh."+request.geohash, function(err,res) {
+            });
+        }
+    });
+
+    client.on('disconnect', function(){
+        pubclient.quit();
+    });
+});
