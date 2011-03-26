@@ -1,0 +1,39 @@
+<div class="container">
+<script>
+$(document).ready(function() {
+  $("#currentLocation").text("Trying to determine location...");
+  $("#currentGeoHash").text("...");
+  // Request a position, no more than 10 minutes old
+  navigator.geolocation.getCurrentPosition(successCallback,
+                                           errorCallback,
+                                           {maximumAge:600000});
+
+  function successCallback(position) {
+    // By using the 'maximumAge' option above, the position
+    // object is guaranteed to be at most 10 minutes old.
+    $("#currentLocation").text("found location: ("+position.coords.latitude+","+position.coords.longitude+")");
+    // Convert to GeoHash
+    $("#currentGeoHash").text(encodeGeoHash(position));
+  }
+
+  function errorCallback(error) {
+    // Update a div element with error.message.
+    $("#currentLocation").text("Error determining position: "+error);
+  }
+});
+
+function message(obj){
+}
+
+var socket = new io.Socket(null, {port: 8134, rememberTransport: false});
+socket.connect();
+socket.on('message', function(obj){
+    message(obj);
+  });
+</script>
+
+<div id="currentLocation"></div>
+
+<div id="currentGeoHash"></div>
+
+</div>
