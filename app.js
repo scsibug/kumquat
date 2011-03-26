@@ -36,7 +36,7 @@ app.post('/messages', function(req, res) {
     client.incr("message.incr", function(err,key) {
         if (!err) {
             // Store message itself
-            client.set("msg."+key, {user: user, geohash: gh, message: msg, timestamp: ts});
+            client.set("msg."+key, JSON.stringify({user: user, geohash: gh, message: msg, timestamp: ts}));
             // Store message in global set by timestamp
             client.zadd("msgs.global", ts, key);
             // store the message in geohash sorted sets named with
@@ -51,8 +51,45 @@ app.post('/messages', function(req, res) {
             client.zadd("msgs.gh."+gh.substr(0,7), ts, key);
         }
     });
-
 });
+
+// Find the date (as millis-since-epoch) for X days ago since the given date.
+function date_from_days_ago(days, date_millis) {
+    var x = 1000*60*60*24*days;
+    return date_millis - x;
+}
+
+app.get('/messages/:geohash', function(req,res) {
+    get_messages(req.params.geohash,function(err, msgs) {
+        res.send(JSON.stringify(msgs));
+    });
+});
+
+var get_messages = function (geohash, callback) {
+    var now = +new Date();
+    var messages = [];
+    client.zrangebyscore("msgs.gh."+geohash,date_from_days_ago(7,now),now, function(err,reply){
+        if (err) {
+            callback(err);
+            return;
+        } else if (_.isNull(reply) || reply.length == 0) {
+            callback("No messages found",[]);
+            return;
+        }
+        var replies = 0;
+        for(var i=0; i < reply.length; i++) {
+            var msg_id = "msg."+reply[i].toString();
+            client.get(msg_id, function(err,msg) {
+                messages.push(msg);
+                replies++;
+                if (replies == reply.length) {
+                    callback(err,messages);
+                }
+            });
+        }
+    });
+}
+
 
 
 // Static files.  Keep this last so it doesn't interfere with dynamic routes.
