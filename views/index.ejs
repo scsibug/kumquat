@@ -20,6 +20,15 @@ $(document).ready(function() {
     // Update a div element with error.message.
     $("#currentLocation").text("Error determining position: "+error);
   }
+
+  $("#messageForm").submit(function(event) {
+    event.preventDefault();
+    var form = $(this);
+    var url = form.attr('action');
+    $.post(url, {username: $('#username').val(),
+           message: $('#message').val(),
+           geohash: $('#geohash').val()});
+  });
 });
 
 function message(obj){
@@ -34,7 +43,7 @@ socket.on('message', function(obj){
 
 <div id="currentLocation"></div>
 
-<form action="/messages" method="post">
+<form id="messageForm" action="/messages" method="post">
   <label for="username">Nickname</label><br />
   <input id="username" type="text" name="username" /> <br />
   <label for="geohash">GeoHash</label><br />

@@ -25,6 +25,7 @@ app.get('/', function(req, res) {
 });
 
 app.post('/messages', function(req, res) {
+    var user = req.body.username;
     var gh = req.body.geohash;
     var msg = req.body.message;
     console.log("New message @ "+gh+", "+msg);
