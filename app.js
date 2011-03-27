@@ -87,7 +87,7 @@ var get_messages = function (geohash, callback) {
         for(var i=0; i < reply.length; i++) {
             var msg_id = "msg."+reply[i].toString();
             client.get(msg_id, function(err,msg) {
-                messages.push(msg);
+                messages.push(JSON.parse(msg));
                 replies++;
                 if (replies == reply.length) {
                     callback(err,messages);

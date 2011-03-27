@@ -10,15 +10,14 @@
 <script>
 
 function message(obj){
-   parsed_obj = JSON.parse(obj);
-   $("#latestmsg").text(parsed_obj.user + " said: " + parsed_obj.message);
-   $("#messageListing").append($("<li/>").text(parsed_obj.user + " said: " + parsed_obj.message));
+   $("#latestmsg").text(obj.user + " said: " + obj.message);
+   $("#messageListing").append($("<li/>").text(obj.user + " said: " + obj.message));
 }
 
 var socket = new io.Socket(null, {port: 8134, rememberTransport: false});
 socket.connect();
 socket.on('message', function(obj){
-    message(obj);
+    message(JSON.parse(obj));
 });
 
 function subscribeToGeoHash(geohash) {
@@ -43,6 +42,7 @@ $(document).ready(function() {
     $("#messageSubmit").removeAttr('disabled');
     // Subscribe to this area
     subscribeToGeoHash(gh);
+    retrieveMessageHistory(gh);
   }
 
   function errorCallback(error) {
@@ -58,6 +58,17 @@ $(document).ready(function() {
            message: $('#message').val(),
            geohash: $('#geohash').val()});
   });
+
+  function retrieveMessageHistory(geohash) {
+    // get list of messages for this box
+    $.get("/messages/"+geohash.substring(0,4), function(data) {
+        var messages = JSON.parse(data);
+        for(var i = 0; i < messages.length; i++) {
+          message(messages[i]);
+        }
+      });
+  }
+
 });
 </script>
 <div class="span-24 last" id="currentLocation"></div>
