@@ -11,7 +11,7 @@
 
 function message(obj){
    $("#messageListing").append($("<tr class='msgRow'>"
-                                 +"<td class='ghCell'>"+obj.geohash+"</td>"
+                                 +"<td class='ghCell'><a href='http://geohash.org/"+obj.geohash+"'>Map</a></td>"
                                  +"<td class='dateCell'>"+new Date(obj.timestamp)+"</td>"
                                  +"<td class='userCell'>"+obj.user+"</td>"
                                  +"<td class='msgCell'>"+obj.message+"</td>"
@@ -95,9 +95,13 @@ $(document).ready(function() {
 
 </div>
 <div class="container">
+  <div class="span-18 append-6 last">
+    <table id="messageListingHeaders">
+      <tr><th>GeoHash</th><th>Timestamp</th><th>User</th><th>Message</th></tr>
+    </table>
+  </div>
   <div id="scrollbox" class="span-18 append-6 last">
     <table id="messageListing">
-      <tr><th>GeoHash</th><th>Timestamp</th><th>User</th><th>Message</th></tr>
     </table>
   </div>
 </div>
