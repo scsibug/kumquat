@@ -19,9 +19,22 @@ app.set('view engine', 'ejs');
 
 // Display login screen
 app.get('/', function(req, res) {
+    var defaultRadius = req.session.defaultradius;
+    console.log("defaultRadius is "+defaultRadius);
+    if (!defaultRadius) {defaultRadius = 4;}
+    console.log("Using default radius of "+defaultRadius);
     res.render('index', {
-        locals: { title: "Kumquat: Local Chat" }
+        locals: { title: "Kumquat: Local Chat",
+                  listeningRadius: defaultRadius
+                }
     });
+});
+
+// Allow client to set a preference for listening radius
+app.post('/user/defaultradius/:size', function(req, res) {
+    req.session.defaultradius = req.params.size;
+    console.log("Saved new default radius of "+req.session.defaultradius+" into session");
+    res.send();
 });
 
 app.post('/messages', function(req, res) {
@@ -160,6 +173,9 @@ socket.on('connection', function(client){
     pubclient.on("message", function(channel, message) {
         client.send(message);
     });
+    pubclient.on("error", function(err) {
+        console.log("pub/sub client emitted error: "+err);
+    });
 
     client.on('message', function(message){
         console.log("Message received: "+message);
@@ -167,6 +183,8 @@ socket.on('connection', function(client){
         if (request.action == 'subscribe') {
             pubclient.subscribe("chan.msgs.gh."+request.geohash, function(err,res) {
             });
+        } else if (request.action == 'unsubscribe-all') {
+            pubclient.unsubscribe();
         }
     });
 

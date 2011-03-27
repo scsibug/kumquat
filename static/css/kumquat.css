@@ -12,8 +12,6 @@ body
 
 #subheader
 {
-  color: #F09E0A;
-  background: 000;
 }
 
 #header-container
@@ -28,4 +26,38 @@ body
   overflow: auto;
   height: 300px;
   resize: vertical;
+}
+
+#radiusList
+{ 
+  list-style: none;
+/*  color: #F09E0A; */
+}
+
+.activeRadius :link, .activeRadius :visited
+{ 
+  font-weight: bold;
+  color: #F09E0A;
+}
+
+#radiusList li a
+{
+  text-decoration: none;
+}
+
+#kumquat-select
+{
+  font-size: 1em;
+}
+#tangerine-select
+{
+  font-size: 1.1em;
+}
+#orange-select
+{
+  font-size: 1.2em;
+}
+#grapefruit-select
+{
+  font-size: 1.3em;
 }

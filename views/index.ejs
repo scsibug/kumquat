@@ -1,14 +1,7 @@
-<div id="header-container" class="container">
-<div class="span-8">
-   <h1 id="header">Kumquat</h1>
-</div>
-<div class="span-16 last">
-   <h2 id="subheader">Location Aware Chat</h1>
-</div>
-</div>
-<div class="container">
 <script>
+var listeningRadius=<%=listeningRadius%>;
 
+var currentGeohash='';
 function message(obj){
    $("#messageListing").append($("<tr class='msgRow'>"
                                  +"<td class='ghCell'><a href='http://geohash.org/"+obj.geohash+"'>Map</a></td>"
@@ -23,13 +16,16 @@ socket.connect();
 socket.on('message', function(obj){
     message(JSON.parse(obj));
 });
-
+function unsubscribeFromAll() {
+  socket.send(JSON.stringify({action: "unsubscribe-all"}));
+}
 function subscribeToGeoHash(geohash) {
-  socket.send(JSON.stringify({action: "subscribe", geohash: geohash.substring(0,4)}));
+  socket.send(JSON.stringify({action: "subscribe", geohash: geohash.substring(0,listeningRadius)}));
 }
 
 $(document).ready(function() {
   $("#currentLocation").text("Trying to determine location...");
+  updateRadiusListView(listeningRadius);
   // Request a position, no more than 10 minutes old
   navigator.geolocation.getCurrentPosition(successCallback,
                                            errorCallback,
@@ -41,12 +37,12 @@ $(document).ready(function() {
     //$("#currentLocation").text("found location: ("+position.coords.latitude+","+position.coords.longitude+")");
     $("#currentLocation").text("");
     // Convert to GeoHash
-    var gh = encodeGeoHash(position.coords.latitude,position.coords.longitude);
-    $("#geohash").val(gh);
+    currentGeohash = encodeGeoHash(position.coords.latitude,position.coords.longitude);
+    $("#geohash").val(currentGeohash);
     $("#messageSubmit").removeAttr('disabled');
     // Subscribe to this area
-    subscribeToGeoHash(gh);
-    retrieveMessageHistory(gh);
+    subscribeToGeoHash(currentGeohash);
+    retrieveMessageHistory(currentGeohash);
   }
 
   function errorCallback(error) {
@@ -65,16 +61,52 @@ $(document).ready(function() {
 
   function retrieveMessageHistory(geohash) {
     // get list of messages for this box
-    $.get("/messages/"+geohash.substring(0,4), function(data) {
+    $.get("/messages/"+geohash.substring(0,listeningRadius), function(data) {
         var messages = JSON.parse(data);
         for(var i = 0; i < messages.length; i++) {
           message(messages[i]);
         }
       });
   }
-
 });
+
+function setListeningRadius(size) {
+  var prevListeningRadius=listeningRadius;
+  listeningRadius=size;
+  if (prevListeningRadius!=listeningRadius) {
+    //resubscribe to geohash channel
+    unsubscribeFromAll();
+    subscribeToGeoHash(currentGeohash);
+    //set radius as the client default
+    $.post("/user/defaultradius/"+size);
+  }
+}
+function updateRadiusListView(size) {
+  $("#radiusList li").removeClass("activeRadius");
+  $("#radius-select-"+size).addClass("activeRadius");
+}
 </script>
+
+<div id="header-container" class="container">
+  <div class="span-8">
+    <h1 id="header">Kumquat</h1>
+  </div>
+  <div class="span-16 last">
+    <div class="span-4">
+      <h2 id="subheader">Listening Radius: </h1>
+    </div>
+    <div class="span-12 last">
+      <ul id="radiusList">
+        <li id="radius-select-7" class="activeRadius"><a href="#" onClick="setListeningRadius(7);updateRadiusListView('7')">Kumquat</a></li>
+        <li id="radius-select-6"><a href="#" onClick="setListeningRadius(6);updateRadiusListView('6')">Tangerine</a></li>
+        <li id="radius-select-5"><a href="#" onClick="setListeningRadius(5);updateRadiusListView('5')">Orange</a></li>
+        <li id="radius-select-4"><a href="#" onClick="setListeningRadius(4);updateRadiusListView('4')">Grapefruit</a></li>
+      </ul>
+    </div>
+  </div>
+</div>
+<div class="container">
+
 <div class="span-24 last" id="currentLocation"></div>
 
 <form id="messageForm" action="/messages" method="post">
