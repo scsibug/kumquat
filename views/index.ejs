@@ -12,6 +12,7 @@
 function message(obj){
    parsed_obj = JSON.parse(obj);
    $("#latestmsg").text(parsed_obj.user + " said: " + parsed_obj.message);
+   $("#messageListing").append($("<li/>").text(parsed_obj.user + " said: " + parsed_obj.message));
 }
 
 var socket = new io.Socket(null, {port: 8134, rememberTransport: false});
@@ -79,4 +80,8 @@ $(document).ready(function() {
 
 <div id="latestmsg">Latest message displayed here...</div>
 
+</div>
+<div class="container">
+  <ol id="messageListing">
+  </ol>
 </div>
