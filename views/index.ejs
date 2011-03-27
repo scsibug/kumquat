@@ -10,7 +10,12 @@
 <script>
 
 function message(obj){
-   $("#messageListing").append($("<tr class='msgRow'><td class='userCell'>"+obj.user+"</td><td class='msgCell'>"+obj.message+"</td></tr>"));
+   $("#messageListing").append($("<tr class='msgRow'>"
+                                 +"<td class='ghCell'>"+obj.geohash+"</td>"
+                                 +"<td class='dateCell'>"+new Date(obj.timestamp)+"</td>"
+                                 +"<td class='userCell'>"+obj.user+"</td>"
+                                 +"<td class='msgCell'>"+obj.message+"</td>"
+                                 +"</tr>"));
 }
 
 var socket = new io.Socket(null, {port: 8134, rememberTransport: false});
@@ -46,7 +51,7 @@ $(document).ready(function() {
 
   function errorCallback(error) {
     // Update a div element with error.message.
-    $("#currentLocation").text("Error determining position: "+error);
+    $("#currentLocation").text("Error determining position: "+error.message);
   }
 
   $("#messageForm").submit(function(event) {
@@ -92,7 +97,7 @@ $(document).ready(function() {
 <div class="container">
   <div id="scrollbox" class="span-18 append-6 last">
     <table id="messageListing">
-      <tr><th>User</th><th>Message</th></tr>
+      <tr><th>GeoHash</th><th>Timestamp</th><th>User</th><th>Message</th></tr>
     </table>
   </div>
 </div>
