@@ -1,1 +1,1 @@
-export lbc_redis_port=6380
+export kumquat_redis_port=6380

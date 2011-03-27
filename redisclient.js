@@ -10,17 +10,17 @@ var db = 0;
 var sessionclient;
 var session_db = 1;
 
-var lbc_redis_port = process.env['lbc_redis_port'];
+var kumquat_redis_port = process.env['kumquat_redis_port'];
 
 exports.createPubClient = function(select_db) {
-    pubclient = redis.createClient(process.env['lbc_redis_port']);
+    pubclient = redis.createClient(process.env['kumquat_redis_port']);
     if (select_db) {db = select_db;}
     pubclient.select(db,function(){});
     return pubclient;
 }
 
 exports.initClient = function(select_db) {
-    client = redis.createClient(process.env['lbc_redis_port']);
+    client = redis.createClient(process.env['kumquat_redis_port']);
     //redis.debug_mode = true;
     if (select_db) {db = select_db;}
     client.select(db,function(){});
@@ -35,7 +35,7 @@ exports.getClient = function() {
 };
 
 exports.initSessionClient = function(select_db) {
-    sessionclient = redis.createClient(process.env['lbc_redis_port']);
+    sessionclient = redis.createClient(process.env['kumquat_redis_port']);
     if (select_db) {session_db = select_db;}
     sessionclient.select(session_db,function(){});
     return sessionclient;

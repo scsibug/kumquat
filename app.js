@@ -20,7 +20,7 @@ app.set('view engine', 'ejs');
 // Display login screen
 app.get('/', function(req, res) {
     res.render('index', {
-        locals: { title: "Location-Based Chat" }
+        locals: { title: "Kumquat: Local Chat" }
     });
 });
 
