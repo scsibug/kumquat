@@ -10,8 +10,7 @@
 <script>
 
 function message(obj){
-   $("#latestmsg").text(obj.user + " said: " + obj.message);
-   $("#messageListing").append($("<tr/>").text(obj.user + " said: " + obj.message));
+   $("#messageListing").append($("<tr class='msgRow'><td class='userCell'>"+obj.user+"</td><td class='msgCell'>"+obj.message+"</td></tr>"));
 }
 
 var socket = new io.Socket(null, {port: 8134, rememberTransport: false});
@@ -89,13 +88,11 @@ $(document).ready(function() {
 </form>
 <br />
 
-<div id="latestmsg">Latest message displayed here...</div>
-
 </div>
 <div class="container">
   <div id="scrollbox" class="span-18 append-6 last">
     <table id="messageListing">
-      <tr><td>User</td><td>Message</td></tr>
+      <tr><th>User</th><th>Message</th></tr>
     </table>
   </div>
 </div>

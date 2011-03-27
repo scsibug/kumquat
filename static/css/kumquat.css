@@ -26,6 +26,6 @@ body
 #scrollbox
 {
   overflow: auto;
-  height: 250px;
+  height: 300px;
   resize: vertical;
 }
