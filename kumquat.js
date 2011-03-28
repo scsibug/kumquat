@@ -6,7 +6,6 @@ var client = rclient.initClient();
 var RedisStore = require('./connect_redis');
 var app = express.createServer();
 var io = require('socket.io');
-var chat = require('./chat');
 app.configure(function() {
     app.use(express.bodyDecoder());
     app.use(express.cookieDecoder());
