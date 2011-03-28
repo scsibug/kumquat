@@ -20,7 +20,7 @@ function unsubscribeFromAll() {
   socket.send(JSON.stringify({action: "unsubscribe-all"}));
 }
 function subscribeToGeoHash(geohash) {
-  socket.send(JSON.stringify({action: "subscribe", geohash: geohash.substring(0,listeningRadius)}));
+  socket.send(JSON.stringify({action: "subscribe", geohash: geohash}));
 }
 
 $(document).ready(function() {
@@ -41,7 +41,8 @@ $(document).ready(function() {
     $("#geohash").val(currentGeohash);
     $("#messageSubmit").removeAttr('disabled');
     // Subscribe to this area
-    subscribeToGeoHash(currentGeohash);
+    setListeningRadius(listeningRadius);
+    //    subscribeToGeoHash(currentGeohash.substring(0,listeningRadius));
     retrieveMessageHistory(currentGeohash);
   }
 
@@ -73,14 +74,34 @@ $(document).ready(function() {
 function setListeningRadius(size) {
   var prevListeningRadius=listeningRadius;
   listeningRadius=size;
+  //unsubscribe to geohash channels
+  unsubscribeFromAll();
+  // find adjacent geohashes
+  var all_adj = findAllAdjGeohashes(currentGeohash.substring(0,listeningRadius));
+  // subscribe to current and surrounding hashes
+  for (var i = 0; i < all_adj.length; i++) {
+    subscribeToGeoHash(all_adj[i]);
+  }
+  //set radius as the client default
   if (prevListeningRadius!=listeningRadius) {
-    //resubscribe to geohash channel
-    unsubscribeFromAll();
-    subscribeToGeoHash(currentGeohash);
-    //set radius as the client default
     $.post("/user/defaultradius/"+size);
   }
 }
+
+function findAllAdjGeohashes(geohash) {
+  var all_adj = [];
+  all_adj.push(geohash);
+  all_adj.push(calculateAdjacent(geohash,'top'));
+  all_adj.push(calculateAdjacent(geohash,'bottom'));
+  all_adj.push(calculateAdjacent(geohash,'right'));
+  all_adj.push(calculateAdjacent(geohash,'left'));
+  all_adj.push(calculateAdjacent(calculateAdjacent(geohash,'left'), 'top'));
+  all_adj.push(calculateAdjacent(calculateAdjacent(geohash,'right'), 'top'));
+  all_adj.push(calculateAdjacent(calculateAdjacent(geohash,'left'), 'bottom'));
+  all_adj.push(calculateAdjacent(calculateAdjacent(geohash,'right'), 'bottom'));
+  return all_adj;
+}
+
 function updateRadiusListView(size) {
   $("#radiusList li").removeClass("activeRadius");
   $("#radius-select-"+size).addClass("activeRadius");
