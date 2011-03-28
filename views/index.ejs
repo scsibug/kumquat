@@ -46,8 +46,6 @@ $(document).ready(function() {
                                            {maximumAge:600000});
 
   function successCallback(position) {
-    // By using the 'maximumAge' option above, the position
-    // object is guaranteed to be at most 10 minutes old.
     //$("#currentLocation").text("found location: ("+position.coords.latitude+","+position.coords.longitude+")");
     $("#currentLocation").text("");
     // Convert to GeoHash
