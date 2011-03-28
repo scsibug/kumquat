@@ -20,9 +20,7 @@ app.set('view engine', 'ejs');
 // Display login screen
 app.get('/', function(req, res) {
     var defaultRadius = req.session.defaultradius;
-    console.log("defaultRadius is "+defaultRadius);
     if (!defaultRadius) {defaultRadius = 4;}
-    console.log("Using default radius of "+defaultRadius);
     res.render('index', {
         locals: { title: "Kumquat: Local Chat",
                   listeningRadius: defaultRadius
@@ -33,7 +31,6 @@ app.get('/', function(req, res) {
 // Allow client to set a preference for listening radius
 app.post('/user/defaultradius/:size', function(req, res) {
     req.session.defaultradius = req.params.size;
-    console.log("Saved new default radius of "+req.session.defaultradius+" into session");
     res.send();
 });
 
@@ -52,6 +49,8 @@ app.post('/messages', function(req, res) {
             // Store message itself
             msgobj = JSON.stringify({user: user, geohash: gh, message: msg, timestamp: ts});
             client.set("msg."+key, msgobj);
+            // store the ID in the message for publishing
+            msgobj.id = key;
             // Store message in global set by timestamp
             client.zadd("msgs.global", ts, key);
             client.publish("chan.msgs.global", msgobj);
@@ -98,14 +97,19 @@ var get_messages = function (geohash, callback) {
         }
         var replies = 0;
         for(var i=0; i < reply.length; i++) {
-            var msg_id = "msg."+reply[i].toString();
-            client.get(msg_id, function(err,msg) {
-                messages.push(JSON.parse(msg));
-                replies++;
-                if (replies == reply.length) {
-                    callback(err,messages);
-                }
-            });
+            var msg_id = reply[i].toString();
+            var msg_key = "msg."+msg_id;
+            (function(msg_id) {
+              client.get(msg_key, function(err,msg) {
+                  msg_parsed = JSON.parse(msg);
+                  msg_parsed.id = msg_id; // save the message ID
+                  messages.push(msg_parsed);
+                  replies++;
+                  if (replies == reply.length) {
+                      callback(err,messages);
+                  }
+              });
+            })(msg_id);
         }
     });
 }
