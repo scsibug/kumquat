@@ -4,24 +4,42 @@ var listeningRadius=<%=listeningRadius%>;
 function ISODateString(d) {
   function pad(n){
     return n<10 ? '0'+n : n
-      }
+  }
   return d.getUTCFullYear()+'-'
     + pad(d.getUTCMonth()+1)+'-'
     + pad(d.getUTCDate())+'T'
     + pad(d.getUTCHours())+':'
     + pad(d.getUTCMinutes())+':'
     + pad(d.getUTCSeconds())+'Z'
-    }
+}
+
+// hack! base-64 to int32 (just for identicon purposes, not actually a base-64 decoder)
+function sessionIDtoInt(str) {
+  try {
+    return (str.charAt(0).charCodeAt() + (str.charAt(1).charCodeAt() << 6) + (str.charAt(2).charCodeAt() << 12) +(str.charAt(3).charCodeAt() << 18) + (str.charAt(4).charCodeAt() << 24));
+  } catch (err) {
+    return 0;
+  }
+}
 
 var currentGeohash='';
 function message(obj){
    $("#messageListing").append($("<tr id='msg-"+obj.id+"' class='msgRow'>"
-                                 +"<td class='ghCell'><a href='http://geohash.org/"+obj.geohash+"'>Map</a></td>"
-                                 +"<td class='dateCell'><abbr class='timeago' title='"+ISODateString(new Date(obj.timestamp))+"'>"+new Date(obj.timestamp)+"</abbr></td>"
+                                 +"<td class='identCell' data-sessionid='"+obj.sessionid+"'></td>"
                                  +"<td class='userCell'>"+obj.user+"</td>"
+                                 +"<td class='ghCell'><a href='http://geohash.org/"+obj.geohash+"'><img alt='Location' src='/images/globe_yellow_30x30.png' /></a></td>"
+                                 +"<td class='dateCell'><abbr class='timeago' title='"+ISODateString(new Date(obj.timestamp))+"'>"+new Date(obj.timestamp)+"</abbr></td>"
                                  +"<td class='msgCell'>"+obj.message+"</td>"
                                  +"</tr>"));
    $("#msg-"+obj.id+" td abbr").timeago();
+   $("#msg-"+obj.id+" td.identCell").each(function(index) {
+       var c = document.createElement('canvas');
+       c.setAttribute("width",30);
+       c.setAttribute("height",30);
+       $(this).append(c);
+       console.log("Using data value: "+$(this).attr("data-sessionid"));
+       new Identicon(c, sessionIDtoInt($(this).attr("data-sessionid")), 30);
+   });
 }
 
 var socket = new io.Socket(null, {port: 8134, rememberTransport: false});
@@ -162,7 +180,7 @@ function updateRadiusListView(size) {
 <div class="container">
   <div class="span-18 append-6 last">
     <table id="messageListingHeaders">
-      <tr><th>GeoHash</th><th>Timestamp</th><th>User</th><th>Message</th></tr>
+      <tr><th>Identicon</th><th>User</th><th>Location</th><th>Timestamp</th><th>Message</th></tr>
     </table>
   </div>
   <div id="scrollbox" class="span-18 append-6 last">

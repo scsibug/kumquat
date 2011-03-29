@@ -53,7 +53,7 @@ app.post('/messages', function(req, res) {
     var msg = req.body.message;
     var ts = +new Date();
     // Compute a session identifier to distinguish unique clients in a region
-    var sid = hashVal(req.session.privateid || "anonymous").substring(0,8);
+    var sid = hashVal(req.session.privateid || "anonymous").substring(0,5);
     // Nothing to be sent to the client
     res.send();
     console.log("New message @ "+gh+", "+msg);
@@ -62,10 +62,11 @@ app.post('/messages', function(req, res) {
         if (!err) {
             // Store messages, and publish to channels
             // Store message itself
-            msgobj = JSON.stringify({user: user, geohash: gh, message: msg, timestamp: ts, sessionid: sid});
+            msg_raw = {user: user, geohash: gh, message: msg, timestamp: ts, sessionid: sid}
+            msgobj_for_storage = JSON.stringify(msg_raw);
+            msg_raw.id = key;
+            msgobj = JSON.stringify(msg_raw);
             client.set("msg."+key, msgobj);
-            // store the ID in the message for publishing
-            msgobj.id = key;
             // Store message in global set by timestamp
             client.zadd("msgs.global", ts, key);
             client.publish("chan.msgs.global", msgobj);
