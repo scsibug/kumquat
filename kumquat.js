@@ -6,6 +6,9 @@ var client = rclient.initClient();
 var RedisStore = require('./connect_redis');
 var app = express.createServer();
 var io = require('socket.io');
+var crypto = require('crypto'),
+    algo = "sha256",
+    encoding = "base64";
 app.configure(function() {
     app.use(express.bodyDecoder());
     app.use(express.cookieDecoder());
@@ -15,9 +18,20 @@ app.configure(function() {
 // EJS is our default templating system
 app.set('view engine', 'ejs');
 
+// Hash data with sha256, return base64-encoded digest.
+function hashVal(val) {
+    var h = crypto.createHash("sha256");
+    h.update(val);
+    return h.digest('base64');
+}
 
 // Display login screen
 app.get('/', function(req, res) {
+    // Save a random string as a session identifier
+    if (!req.session.privateid) {
+        req.session.privateid = hashVal(req.headers['user-agent'] + new Date().getTime());
+    }
+    // Set a default radius for listening
     var defaultRadius = req.session.defaultradius;
     if (!defaultRadius) {defaultRadius = 4;}
     res.render('index', {
@@ -38,6 +52,8 @@ app.post('/messages', function(req, res) {
     var gh = req.body.geohash;
     var msg = req.body.message;
     var ts = +new Date();
+    // Compute a session identifier to distinguish unique clients in a region
+    var sid = hashVal(req.session.privateid || "anonymous").substring(0,8);
     // Nothing to be sent to the client
     res.send();
     console.log("New message @ "+gh+", "+msg);
@@ -46,7 +62,7 @@ app.post('/messages', function(req, res) {
         if (!err) {
             // Store messages, and publish to channels
             // Store message itself
-            msgobj = JSON.stringify({user: user, geohash: gh, message: msg, timestamp: ts});
+            msgobj = JSON.stringify({user: user, geohash: gh, message: msg, timestamp: ts, sessionid: sid});
             client.set("msg."+key, msgobj);
             // store the ID in the message for publishing
             msgobj.id = key;
