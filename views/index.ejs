@@ -37,7 +37,6 @@ function message(obj){
        c.setAttribute("width",30);
        c.setAttribute("height",30);
        $(this).append(c);
-       console.log("Using data value: "+$(this).attr("data-sessionid"));
        new Identicon(c, sessionIDtoInt($(this).attr("data-sessionid")), 30);
    });
 }
@@ -101,12 +100,17 @@ $(document).ready(function() {
 
   function retrieveMessageHistory(geohash) {
     // get list of messages for this box
-    $.get("/messages/"+geohash.substring(0,listeningRadius), function(data) {
-        var messages = JSON.parse(data);
-        for(var i = 0; i < messages.length; i++) {
-          message(messages[i]);
-        }
-      });
+    var all_adj = findAllAdjGeohashes(currentGeohash.substring(0,listeningRadius));
+    for(var i = 0; i < all_adj.length ; i++) {
+      (function(gh) {
+        $.get("/messages/"+gh, function(data) {
+            var messages = JSON.parse(data);
+            for(var j = 0; j < messages.length; j++) {
+              message(messages[j]);
+            }
+          });
+      })(all_adj[i]);
+    }
   }
 });
 
