@@ -23,6 +23,13 @@ function sessionIDtoInt(str) {
 }
 
 var currentGeohash='';
+
+
+function updateMessageScroll(){
+  $("#scrollbox").attr({ scrollTop: $("#scrollbox").attr("scrollHeight") });
+  // $("#scrollbox").animate({ scrollTop: $("#scrollbox").attr("scrollHeight") - $('#scrollbox').height() }, 1000);
+}
+
 function message(obj){
    $("#messageListing").append($("<tr id='msg-"+obj.id+"' class='msgRow'>"
                                  +"<td class='identCell' data-sessionid='"+obj.sessionid+"'></td>"
@@ -39,6 +46,7 @@ function message(obj){
        $(this).append(c);
        new Identicon(c, sessionIDtoInt($(this).attr("data-sessionid")), 30);
    });
+   updateMessageScroll()
 }
 
 var socket = new io.Socket(null, {port: 8134, rememberTransport: false});
