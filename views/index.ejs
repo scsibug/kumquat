@@ -182,20 +182,6 @@ function updateRadiusListView(size) {
 <div class="span-24 last" id="currentLocation"></div>
 <div class="span-24 last" id="socketConnectionStatus">Status: Disconnected</div>
 
-<form id="messageForm" action="/messages" method="post">
-<div class="span-24 last" id="nickNameSelection">
-  <label class="span-2" for="username">Nickname: </label>
-  <input class="span-4 append-16 last" id="username" type="text" name="username" /> <br />
-</div>
-  <input id="geohash" type="hidden" name="geohash" />
-<div class="span-24 last" id="messageSelection">
-  <label class="span-2" for="message">Message: </label>
-  <input class="span-16" id="message" type="text" size="80" name="message" />
-  <div class="span-6 last">
-  <input id="messageSubmit" disabled type="submit" />
-  </div>
-</div>
-</form>
 <br />
 
 </div>
@@ -210,6 +196,25 @@ function updateRadiusListView(size) {
     </table>
   </div>
 </div>
+
+<div class="container">
+<form id="messageForm" action="/messages" method="post">
+<div class="span-4" id="nickNameSelection">
+  <label class="span-2" for="username">Nickname: </label>
+  <input class="span-2" id="username" type="text" name="username" />
+</div>
+  <input id="geohash" type="hidden" name="geohash" />
+<div class="span-20 last" id="messageSelection">
+  <label class="prepend-1 span-2" for="message">Message: </label>
+  <input class="span-11" id="message" type="text" size="80" name="message" />
+  <div class="prepend-1 span-5 last">
+    <input id="messageSubmit" disabled type="submit" />
+  </div>
+</div>
+</form>
+</div>
+
+
 <div class="container" id="footer">
   <div class="prepend-8 span-8 append-8 last">
   <p>Copyright © 2011 <a href="mailto:scsibug@imap.cc">Greg Heartsfield</a></p>
