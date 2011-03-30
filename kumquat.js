@@ -36,7 +36,8 @@ app.get('/', function(req, res) {
     if (!defaultRadius) {defaultRadius = 3;}
     res.render('index', {
         locals: { title: "Kumquat: Local Chat",
-                  listeningRadius: defaultRadius
+                  listeningRadius: defaultRadius,
+                  username: (req.session.username || "")
                 }
     });
 });
@@ -52,6 +53,8 @@ app.post('/messages', function(req, res) {
     var gh = req.body.geohash;
     var msg = req.body.message;
     var ts = +new Date();
+    // save username in session
+    req.session.username = user;
     // Compute a session identifier to distinguish unique clients in a region
     var sid = hashVal(req.session.privateid || "anonymous").substring(0,5);
     // Nothing to be sent to the client
