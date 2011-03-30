@@ -44,6 +44,7 @@ function message(obj){
   row.append(tdGeohash);
   var tdDate =  $("<td class='dateCell' />");
   var timeAbbr = $("<abbr class='timeago' />").attr("title",ISODateString(new Date(obj.timestamp)));
+  tdDate.append(timeAbbr);
   timeAbbr.text(new Date(obj.timestamp));
   timeAbbr.timeago();
   row.append(tdDate);
@@ -216,12 +217,12 @@ function updateRadiusListView(size) {
 
 </div>
 <div class="container">
-  <div class="span-18 append-6 last">
-    <table id="messageListingHeaders">
-      <tr><th>Identicon</th><th>User</th><th>Location</th><th>Timestamp</th><th>Message</th></tr>
+  <div class="span-24 last">
+    <table id="messageListingHeader">
+      <tr><th class="identHeader">Identicon</th><th class="userHeader">User</th><th class="ghHeader">Location</th><th class="dateHeader">Timestamp</th><th class="msgHeader">Message</th></tr>
     </table>
   </div>
-  <div id="scrollbox" class="span-18 append-6 last">
+  <div id="scrollbox" class="span-24 last">
     <table id="messageListing">
     </table>
   </div>

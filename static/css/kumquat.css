@@ -64,3 +64,58 @@ body
 {
   font-size: 1.4em;
 }
+
+#messageListingHeader
+{
+  width:100%;
+}
+
+#messageListing
+{
+  width:100%;
+}
+
+td.identCell
+{
+  width: 50px;
+}
+th.identHeader
+{
+  width: 50px;
+}
+
+td.ghCell
+{
+  width: 60px;
+}
+th.ghHeader
+{
+  width: 60px;
+}
+
+td.dateCell
+{ 
+  width: 150px;
+}
+td.dateHeader
+{
+  width: 150px;
+}
+
+td.userCell
+{
+  width: 100px;
+}
+th.userHeader
+{
+  width: 100px;
+}
+
+td.msgCell
+{
+  width: 500px;
+}
+th.msgHeader
+{
+  width: 500px;
+}
