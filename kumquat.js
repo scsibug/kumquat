@@ -33,7 +33,7 @@ app.get('/', function(req, res) {
     }
     // Set a default radius for listening
     var defaultRadius = req.session.defaultradius;
-    if (!defaultRadius) {defaultRadius = 4;}
+    if (!defaultRadius) {defaultRadius = 3;}
     res.render('index', {
         locals: { title: "Kumquat: Local Chat",
                   listeningRadius: defaultRadius
@@ -71,10 +71,10 @@ app.post('/messages', function(req, res) {
             client.zadd("msgs.global", ts, key);
             client.publish("chan.msgs.global", msgobj);
             // store the message in geohash sorted sets named with
-            // the 4,5,6,7 prefixes, with the timestamp as the score.
-            // Store in prefix-4
-            client.zadd("msgs.gh."+gh.substr(0,4), ts, key);
-            client.publish("chan.msgs.gh."+gh.substr(0,4), msgobj);
+            // the 3,5,6,7 prefixes, with the timestamp as the score.
+            // Store in prefix-3
+            client.zadd("msgs.gh."+gh.substr(0,3), ts, key);
+            client.publish("chan.msgs.gh."+gh.substr(0,3), msgobj);
             // Store in prefix-5
             client.zadd("msgs.gh."+gh.substr(0,5), ts, key);
             client.publish("chan.msgs.gh."+gh.substr(0,5), msgobj);
