@@ -86,10 +86,12 @@ $(document).ready(function() {
     currentGeohash = encodeGeoHash(position.coords.latitude,position.coords.longitude);
     $("#geohash").val(currentGeohash);
     $("#messageSubmit").removeAttr('disabled');
-    // Subscribe to this area
-    setListeningRadius(listeningRadius);
     //    subscribeToGeoHash(currentGeohash.substring(0,listeningRadius));
-    retrieveMessageHistory(currentGeohash);
+    retrieveMessageHistory(currentGeohash,function() {
+        // after old messages are displayed:
+        // Subscribe to this area for new messages
+        setListeningRadius(listeningRadius);
+      });
   }
 
   function errorCallback(error) {
@@ -106,15 +108,31 @@ $(document).ready(function() {
            geohash: $('#geohash').val()});
   });
 
-  function retrieveMessageHistory(geohash) {
+  function messageSorter(a,b) {
+    return (a.timestamp - b.timestamp)
+  }
+
+  // Retrieve all historical messages around the current listening radius.
+  // sorts messages, and then adds them to the page with message();
+  function retrieveMessageHistory(geohash,callback) {
+    var msgHistory = [];
     // get list of messages for this box
     var all_adj = findAllAdjGeohashes(currentGeohash.substring(0,listeningRadius));
+    var retrieved = 0;
     for(var i = 0; i < all_adj.length ; i++) {
       (function(gh) {
         $.get("/messages/"+gh, function(data) {
+            retrieved++;
             var messages = JSON.parse(data);
-            for(var j = 0; j < messages.length; j++) {
-              message(messages[j]);
+            for (var j = 0; j < messages.length; j++) {
+              msgHistory.push(messages[j]);
+            }
+            if (retrieved == all_adj.length) {
+              msgHistory.sort(messageSorter);
+              for(var i = 0; i < msgHistory.length; i++) {
+                message(msgHistory[i]);
+              }
+              callback();
             }
           });
       })(all_adj[i]);
