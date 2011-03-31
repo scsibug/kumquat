@@ -83,6 +83,37 @@ function subscribeToGeoHash(geohash) {
   socket.send(JSON.stringify({action: "subscribe", geohash: geohash}));
 }
 
+function messageSorter(a,b) {
+  return (a.timestamp - b.timestamp);
+}
+
+// Retrieve all historical messages around the current listening radius.
+// sorts messages, and then adds them to the page with message();
+function retrieveMessageHistory(geohash,callback) {
+  var msgHistory = [];
+  // get list of messages for this box
+  var all_adj = findAllAdjGeohashes(currentGeohash.substring(0,listeningRadius));
+  var retrieved = 0;
+  for(var i = 0; i < all_adj.length ; i++) {
+    (function(gh) {
+      $.get("/messages/"+gh, function(data) {
+          retrieved++;
+          var messages = JSON.parse(data);
+          for (var j = 0; j < messages.length; j++) {
+            msgHistory.push(messages[j]);
+          }
+          if (retrieved == all_adj.length) {
+            msgHistory.sort(messageSorter);
+            for(var i = 0; i < msgHistory.length; i++) {
+              message(msgHistory[i]);
+            }
+            if (callback != null) {callback();}
+          }
+        });
+    })(all_adj[i]);
+  }
+}
+
 $(document).ready(function() {
   $('abbr.timeago').timeago();
   $("#currentLocation").text("Trying to determine location...");
@@ -123,36 +154,6 @@ $(document).ready(function() {
     $("#message").val("");
   });
 
-  function messageSorter(a,b) {
-    return (a.timestamp - b.timestamp)
-  }
-
-  // Retrieve all historical messages around the current listening radius.
-  // sorts messages, and then adds them to the page with message();
-  function retrieveMessageHistory(geohash,callback) {
-    var msgHistory = [];
-    // get list of messages for this box
-    var all_adj = findAllAdjGeohashes(currentGeohash.substring(0,listeningRadius));
-    var retrieved = 0;
-    for(var i = 0; i < all_adj.length ; i++) {
-      (function(gh) {
-        $.get("/messages/"+gh, function(data) {
-            retrieved++;
-            var messages = JSON.parse(data);
-            for (var j = 0; j < messages.length; j++) {
-              msgHistory.push(messages[j]);
-            }
-            if (retrieved == all_adj.length) {
-              msgHistory.sort(messageSorter);
-              for(var i = 0; i < msgHistory.length; i++) {
-                message(msgHistory[i]);
-              }
-              callback();
-            }
-          });
-      })(all_adj[i]);
-    }
-  }
 });
 
 function setListeningRadius(size) {
@@ -170,6 +171,13 @@ function setListeningRadius(size) {
   if (prevListeningRadius!=listeningRadius) {
     $.post("/user/defaultradius/"+size);
   }
+}
+
+function refreshMessageListing() {
+  // Remove messages from view
+  $("#messageListing").empty();
+  // Pull new messages.
+  retrieveMessageHistory(currentGeohash);
 }
 
 function findAllAdjGeohashes(geohash) {
@@ -202,10 +210,10 @@ function updateRadiusListView(size) {
     </div>
     <div class="span-12 last">
       <ul id="radiusList">
-        <li id="radius-select-7" class="activeRadius"><a href="#" onClick="setListeningRadius(7);updateRadiusListView('7')">Kumquat</a></li>
-        <li id="radius-select-6"><a href="#" onClick="setListeningRadius(6);updateRadiusListView('6')">Tangerine</a></li>
-        <li id="radius-select-5"><a href="#" onClick="setListeningRadius(5);updateRadiusListView('5')">Orange</a></li>
-        <li id="radius-select-3"><a href="#" onClick="setListeningRadius(3);updateRadiusListView('3')">Grapefruit</a></li>
+        <li id="radius-select-7" class="activeRadius"><a href="#" onClick="setListeningRadius(7);updateRadiusListView('7');refreshMessageListing()">Kumquat</a></li>
+        <li id="radius-select-6"><a href="#" onClick="setListeningRadius(6);updateRadiusListView('6');refreshMessageListing()">Tangerine</a></li>
+        <li id="radius-select-5"><a href="#" onClick="setListeningRadius(5);updateRadiusListView('5');refreshMessageListing()">Orange</a></li>
+        <li id="radius-select-3"><a href="#" onClick="setListeningRadius(3);updateRadiusListView('3');refreshMessageListing()">Grapefruit</a></li>
       </ul>
     </div>
   </div>
