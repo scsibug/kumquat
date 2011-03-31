@@ -99,12 +99,13 @@ $(document).ready(function() {
     currentGeohash = encodeGeoHash(position.coords.latitude,position.coords.longitude);
     $("#geohash").val(currentGeohash);
     $("#messageSubmit").removeAttr('disabled');
-    //    subscribeToGeoHash(currentGeohash.substring(0,listeningRadius));
-    retrieveMessageHistory(currentGeohash,function() {
+      //    subscribeToGeoHash(currentGeohash.substring(0,listeningRadius));
+      retrieveMessageHistory(currentGeohash,function() {
         // after old messages are displayed:
         // Subscribe to this area for new messages
         setListeningRadius(listeningRadius);
-      });
+        // Clear out message input box
+    });
   }
 
   function errorCallback(error) {
@@ -119,6 +120,7 @@ $(document).ready(function() {
     $.post(url, {username: $('#username').val(),
            message: $('#message').val(),
            geohash: $('#geohash').val()});
+    $("#message").val("");
   });
 
   function messageSorter(a,b) {
