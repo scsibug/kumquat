@@ -230,15 +230,15 @@ function updateRadiusListView(size) {
 
 <div class="container">
 <form id="messageForm" action="/messages" method="post">
-<div class="span-4" id="nickNameSelection">
-  <label class="span-2" for="username">Nickname: </label>
-  <input class="span-2" id="username" type="text" name="username" value="<%=username%>" />
+<div class="span-6" id="nickNameSelection">
+  <label for="username">Nickname: </label>
+  <input id="username" type="text" size="12" name="username" value="<%=username%>" />
 </div>
   <input id="geohash" type="hidden" name="geohash" />
-<div class="span-20 last" id="messageSelection">
-  <label class="prepend-1 span-2" for="message">Message: </label>
-  <input class="span-11" id="message" type="text" size="80" name="message" />
-  <div class="prepend-1 span-5 last">
+<div class="span-18 last" id="messageSelection">
+  <label for="message">Message: </label>
+  <input id="message" type="text" size="80" name="message" />
+  <div class="prepend-1 span-3 last">
     <input id="messageSubmit" disabled type="submit" />
   </div>
 </div>
