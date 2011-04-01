@@ -62,15 +62,30 @@ function message(obj){
   updateMessageScroll();
 }
 
-var socket = new io.Socket(null, {port: 8134, rememberTransport: false});
+var socket = new io.Socket(null, {port: 8134, reconnect: true, tryTransportsOnConnectTimeout: false, rememberTransport: false});
 socket.on('connect',function() {
     $("#socketConnectionStatus").text("Status: Connected");
 });
+socket.on('connecting',function() {
+    $("#socketConnectionStatus").text("Status: Connecting...");
+});
+socket.on('reconnect',function() {
+    $("#socketConnectionStatus").text("Status: Reconnected");
+});
+socket.on('reconnecting',function() {
+    $("#socketConnectionStatus").text("Status: Reconnecting...");
+});
 socket.on('disconnect',function() {
     $("#socketConnectionStatus").text("Status: Disconnected, trying to reconnect...");
-    socket.connect();
+    socket.connect(); // reconnect fails in Chrome without this.
 });
-$("#socketConnectionStatus").text("Status: Connecting...");
+socket.on('connect_failed',function() {
+    $("#socketConnectionStatus").text("Status: Disconnected, reload to reconnect.");
+});
+socket.on('reconnect_failed',function() {
+    $("#socketConnectionStatus").text("Status: Reconnect failed, reload to reconnect.");
+});
+//$("#socketConnectionStatus").text("Status: Connecting...");
 socket.connect();
 
 socket.on('message', function(obj){

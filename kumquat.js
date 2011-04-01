@@ -98,6 +98,7 @@ function date_from_days_ago(days, date_millis) {
 }
 
 app.get('/messages/:geohash', function(req,res) {
+    console.log("REQ: "+req.params.geohash);
     get_messages(req.params.geohash,function(err, msgs) {
         res.send(JSON.stringify(msgs));
     });
