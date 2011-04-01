@@ -51,7 +51,7 @@ app.post('/user/defaultradius/:size', function(req, res) {
 app.post('/messages', function(req, res) {
     var user = req.body.username;
     var gh = req.body.geohash;
-    var msg = req.body.message;
+    var msg = req.body.message.substr(0,400);
     var ts = +new Date();
     // save username in session
     req.session.username = user;
