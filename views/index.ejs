@@ -145,13 +145,11 @@ $(document).ready(function() {
     currentGeohash = encodeGeoHash(position.coords.latitude,position.coords.longitude);
     $("#geohash").val(currentGeohash);
     $("#messageSubmit").removeAttr('disabled');
-      //    subscribeToGeoHash(currentGeohash.substring(0,listeningRadius));
-      retrieveMessageHistory(currentGeohash,function() {
-        // after old messages are displayed:
-        // Subscribe to this area for new messages
-        setListeningRadius(listeningRadius);
-        // Clear out message input box
-    });
+    retrieveMessageHistory(currentGeohash,function() {
+    // after old messages are displayed:
+    // Subscribe to this area for new messages
+    setListeningRadius(listeningRadius);
+     });
   }
 
   function errorCallback(error) {
