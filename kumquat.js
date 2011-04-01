@@ -112,7 +112,7 @@ var get_messages = function (geohash, callback) {
         if (err) {
             callback(err);
             return;
-        } else if (_.isNull(reply) || reply.length == 0) {
+        } else if (_.isNull(reply) || reply.length === 0) {
             callback("No messages found",[]);
             return;
         }
@@ -126,7 +126,7 @@ var get_messages = function (geohash, callback) {
                   msg_parsed.id = msg_id; // save the message ID
                   messages.push(msg_parsed);
                   replies++;
-                  if (replies == reply.length) {
+                  if (replies === reply.length) {
                       callback(err,messages);
                   }
               });
@@ -190,7 +190,7 @@ app.listen(8134);
 // Broadcast recent events
 var socket = io.listen(app);
 
-socket.on('connection', function(client){ 
+socket.on('connection', function(client){
     // create redis listener for this client
     var pubclient = rclient.createPubClient();
 
@@ -205,10 +205,10 @@ socket.on('connection', function(client){
     client.on('message', function(message){
         console.log("Message received: "+message);
         var request = JSON.parse(message);
-        if (request.action == 'subscribe') {
+        if (request.action === 'subscribe') {
             pubclient.subscribe("chan.msgs.gh."+request.geohash, function(err,res) {
             });
-        } else if (request.action == 'unsubscribe-all') {
+        } else if (request.action === 'unsubscribe-all') {
             pubclient.unsubscribe();
         }
     });
