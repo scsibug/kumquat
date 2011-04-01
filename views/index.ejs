@@ -89,7 +89,10 @@ socket.on('reconnect_failed',function() {
 socket.connect();
 
 socket.on('message', function(obj){
-    message(JSON.parse(obj));
+    var parsedobj = JSON.parse(obj);
+    if (parsedobj.action === "message") {
+      message(parsedobj.message);
+    }
 });
 function unsubscribeFromAll() {
   socket.send(JSON.stringify({action: "unsubscribe-all"}));

@@ -69,24 +69,25 @@ app.post('/messages', function(req, res) {
             msgobj_for_storage = JSON.stringify(msg_raw);
             msg_raw.id = key;
             msgobj = JSON.stringify(msg_raw);
+            pubmsg = JSON.stringify({action: "message", message: msg_raw});
             client.set("msg."+key, msgobj);
             // Store message in global set by timestamp
             client.zadd("msgs.global", ts, key);
-            client.publish("chan.msgs.global", msgobj);
+            client.publish("chan.msgs.global", pubmsg);
             // store the message in geohash sorted sets named with
             // the 3,5,6,7 prefixes, with the timestamp as the score.
             // Store in prefix-3
             client.zadd("msgs.gh."+gh.substr(0,3), ts, key);
-            client.publish("chan.msgs.gh."+gh.substr(0,3), msgobj);
+            client.publish("chan.msgs.gh."+gh.substr(0,3), pubmsg);
             // Store in prefix-5
             client.zadd("msgs.gh."+gh.substr(0,5), ts, key);
-            client.publish("chan.msgs.gh."+gh.substr(0,5), msgobj);
+            client.publish("chan.msgs.gh."+gh.substr(0,5), pubmsg);
             // Store in prefix-6
             client.zadd("msgs.gh."+gh.substr(0,6), ts, key);
-            client.publish("chan.msgs.gh."+gh.substr(0,6), msgobj);
+            client.publish("chan.msgs.gh."+gh.substr(0,6), pubmsg);
             // Store in prefix-7
             client.zadd("msgs.gh."+gh.substr(0,7), ts, key);
-            client.publish("chan.msgs.gh."+gh.substr(0,7), msgobj);
+            client.publish("chan.msgs.gh."+gh.substr(0,7), pubmsg);
         }
     });
 });
